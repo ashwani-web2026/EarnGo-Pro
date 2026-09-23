@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html><head><meta name="viewport" content="width=device-width"><title>Wallet - EarnGo Pro</title>
+<style>body{margin:0;font-family:Arial;background:#f5f7ff} .header{background:#6c63ff;color:white;padding:15px} .card{background:white;margin:15px;padding:20px;border-radius:12px} input,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box} button{background:#6c63ff;color:white;border:none;padding:12px;width:100%;border-radius:8px}</style>
+</head><body>
+<div class="header" onclick="location.href='dashboard.html'">← Back to Dashboard</div>
+<div class="card"><h2>My Wallet</h2><h1 style="color:#6c63ff">₹<span id="bal">0</span></h1><p>Minimum Withdraw ₹100</p><hr>
+<h3>Withdraw Method</h3><select><option>UPI</option><option>Paytm</option><option>Bank Transfer</option></select><input placeholder="UPI ID / Account Number"><button onclick="withdraw()">Withdraw Now</button></div>
+<script>
+let b = parseInt(localStorage.getItem('bal')||'0');
+document.getElementById('bal').innerText=b;
+function withdraw(){
+  if(b<100){alert("Minimum ₹100 chahiye");return;}
+  alert("Withdrawal Request Sent! 24-48 hour me aayega (Demo)");
+  localStorage.setItem('bal','0');
+  document.getElementById('bal').innerText='0';
+}
+</script>
+</body></html>
