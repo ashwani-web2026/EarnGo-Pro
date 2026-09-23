@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EarnGo Pro - Sign Up</title>
+<style>
+body{margin:0;font-family:Arial;background:#f5f7ff;display:flex;min-height:100vh}
+.left{flex:1;background:#6c63ff;display:flex;align-items:center;justify-content:center;color:white;font-size:40px;font-weight:bold}
+.right{flex:1;background:white;padding:40px;display:flex;flex-direction:column;justify-content:center}
+h2{margin:0 0 20px}
+input{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box}
+.row{display:flex;gap:10px}
+.row input{flex:1}
+.btn-otp{background:#eee;border:1px solid #ccc;border-radius:8px;padding:12px;cursor:pointer;white-space:nowrap}
+.btn-signup{background:#6c63ff;color:white;border:none;padding:14px;border-radius:8px;width:100%;font-size:16px;margin-top:15px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="left">AS<br><span style="font-size:18px;font-weight:400">EarnGo Pro</span></div>
+<div class="right">
+<h2>Sign Up</h2>
+<p style="color:#666">Already have an account? <a href="login.html">Sign In</a></p>
+
+<input type="text" id="mobile" placeholder="+91  Mobile number">
+<div class="row">
+<input type="text" id="otp" placeholder="OTP">
+<button class="btn-otp" onclick="sendOTP()">Send</button>
+</div>
+<input type="password" id="pass" placeholder="Password">
+<input type="password" id="cpass" placeholder="Confirm Password">
+<input type="text" id="invite" placeholder="Invitation Code (Optional)">
+
+<button class="btn-signup" onclick="signup()">Sign Up</button>
+</div>
+<script>
+function sendOTP(){ alert("OTP sent to " + document.getElementById('mobile').value + " (Demo)"); }
+function signup(){
+  let m = document.getElementById('mobile').value;
+  localStorage.setItem('user', m);
+  alert("Signup Success! Welcome to EarnGo Pro");
+  window.location.href="dashboard.html";
+}
+</script>
+</body>
+</html>
