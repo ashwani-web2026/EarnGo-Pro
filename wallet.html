@@ -1,18 +1,35 @@
-<!DOCTYPE html>
-<html><head><meta name="viewport" content="width=device-width"><title>Wallet - EarnGo Pro</title>
-<style>body{margin:0;font-family:Arial;background:#f5f7ff} .header{background:#6c63ff;color:white;padding:15px} .card{background:white;margin:15px;padding:20px;border-radius:12px} input,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px;box-sizing:border-box} button{background:#6c63ff;color:white;border:none;padding:12px;width:100%;border-radius:8px}</style>
-</head><body>
-<div class="header" onclick="location.href='dashboard.html'">← Back to Dashboard</div>
-<div class="card"><h2>My Wallet</h2><h1 style="color:#6c63ff">₹<span id="bal">0</span></h1><p>Minimum Withdraw ₹100</p><hr>
-<h3>Withdraw Method</h3><select><option>UPI</option><option>Paytm</option><option>Bank Transfer</option></select><input placeholder="UPI ID / Account Number"><button onclick="withdraw()">Withdraw Now</button></div>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wallet - EarnGo Pro</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<style>body{margin:0;font-family:system-ui;background:#f0f2ff} .header{background:#6c63ff;color:#fff;padding:20px} .card{background:#fff;margin:15px;padding:20px;border-radius:14px} .bal{font-size:30px;font-weight:bold;color:#6c63ff} input,select{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:10px;box-sizing:border-box} .btn{background:#6c63ff;color:#fff;border:0;padding:14px;border-radius:10px;width:100%;cursor:pointer;font-weight:600}</style></head><body>
+<div class="header"><h2 style="margin:0">My Wallet</h2><small id="phone"></small></div>
+<div class="card"><small>Available Balance</small><div class="bal">₹<span id="balance">0</span></div></div>
+<div class="card"><h3>Withdraw</h3><p>Min ₹100</p><select id="method"><option>UPI</option><option>Paytm</option><option>Bank</option></select><input id="upi" placeholder="UPI ID / Number"><input id="amount" type="number" placeholder="Amount"><button class="btn" onclick="withdraw()">Request Withdrawal</button><p id="msg"></p></div>
+<div class="card"><h3>History</h3><div id="history">Loading...</div></div>
+<p style="text-align:center"><a href="dashboard.html">Back</a></p>
 <script>
-let b = parseInt(localStorage.getItem('bal')||'0');
-document.getElementById('bal').innerText=b;
+const firebaseConfig = {
+  apiKey: "AIzaSyDtzvRnHCR3P8DLhf-_xo_j-IhU9iaj7ro",
+  authDomain: "earngo-pro-585df.firebaseapp.com",
+  projectId: "earngo-pro-585df",
+  storageBucket: "earngo-pro-585df.firebasestorage.app",
+  messagingSenderId: "142206421543",
+  appId: "1:142206421543:web:2dc72deaa16df67def1c02",
+  measurementId: "G-T1RXK7ZHC7"
+};
+firebase.initializeApp(firebaseConfig); const db=firebase.firestore();
+let uid=localStorage.getItem('uid'); let ph=localStorage.getItem('phone');
+if(!uid) location.href="index.html";
+document.getElementById('phone').innerText=ph;
+let bal=0;
+db.collection("users").doc(uid).onSnapshot(d=>{if(d.exists){bal=d.data().balance||0; document.getElementById('balance').innerText=bal;}});
 function withdraw(){
-  if(b<100){alert("Minimum ₹100 chahiye");return;}
-  alert("Withdrawal Request Sent! 24-48 hour me aayega (Demo)");
-  localStorage.setItem('bal','0');
-  document.getElementById('bal').innerText='0';
+  let amt=parseInt(document.getElementById('amount').value); let upi=document.getElementById('upi').value; let method=document.getElementById('method').value;
+  if(amt<100){alert("Min ₹100");return;} if(amt>bal){alert("Low Balance");return;} if(!upi){alert("Enter UPI");return;}
+  db.collection("withdrawals").add({uid:uid, phone:ph, method:method, upi:upi, amount:amt, status:"Pending", createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{
+    db.collection("users").doc(uid).update({balance:bal-amt});
+    document.getElementById('msg').innerText="Requested! 24h me hoga";
+  });
 }
-</script>
-</body></html>
+db.collection("withdrawals").where("uid","==",uid).orderBy("createdAt","desc").onSnapshot(snap=>{let h=""; snap.forEach(doc=>{let d=doc.data(); h+=`<div style='border-bottom:1px solid #eee;padding:8px 0'>₹${d.amount} - ${d.status} - ${d.method}<br><small>${d.upi}</small></div>`;}); document.getElementById('history').innerHTML=h||"No withdrawals";});
+</script></body></html> 
