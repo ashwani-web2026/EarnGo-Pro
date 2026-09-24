@@ -1,40 +1,33 @@
-<!DOCTYPE html>
-<html><head><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dashboard - EarnGo Pro</title>
-<style>
-body{margin:0;font-family:Arial;background:#f5f7ff}
-.header{background:#6c63ff;color:white;padding:15px;display:flex;justify-content:space-between}
-.card{background:white;margin:15px;padding:15px;border-radius:12px;box-shadow:0 2px 10px #ddd}
-.task{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee}
-.btn{ background:#6c63ff;color:white;border:none;padding:8px 15px;border-radius:6px;cursor:pointer}
-.refer-box{background:#eef0ff;border:1px dashed #6c63ff;padding:10px;border-radius:8px;margin-top:10px;word-break:break-all}
-</style>
-</head><body>
-<div class="header"><b>EarnGo Pro</b><span onclick="location.href='wallet.html'">Wallet: ₹<span id="bal">0</span></span></div>
-
-<div class="card"><h3>🔥 Daily Tasks</h3>
-<div class="task"><span>Video Dekho (30 sec) - ₹5</span><button class="btn" onclick="earn(5)">Start</button></div>
-<div class="task"><span>Greeting Share karo - ₹10</span><button class="btn" onclick="earn(10)">Start</button></div>
-<div class="task"><span>App Install Task - ₹20</span><button class="btn" onclick="earn(20)">Start</button></div>
-</div>
-
-<div class="card"><h3>💰 Refer & Earn ₹40</h3>
-<p>Har dost pe ₹40</p>
-<div class="refer-box" id="reflink">https://earngo-pro.github.io?invite=AS1234</div>
-<button class="btn" style="margin-top:10px" onclick="copyRef()">Copy Link</button>
-</div>
-
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard - EarnGo Pro</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<style>body{margin:0;font-family:system-ui;background:#f0f2ff} .header{background:#6c63ff;color:#fff;padding:20px;display:flex;justify-content:space-between;align-items:center} .card{background:#fff;margin:15px;padding:20px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.06)} .bal{font-size:32px;font-weight:bold;color:#6c63ff} .btn{background:#6c63ff;color:#fff;border:0;padding:12px 18px;border-radius:10px;cursor:pointer;margin:5px} .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}</style></head><body>
+<div class="header"><div><b>EarnGo Pro</b><br><small id="phoneShow"></small></div><button onclick="logout()" style="background:#fff;color:#6c63ff;border:0;padding:8px 14px;border-radius:8px;cursor:pointer">Logout</button></div>
+<div class="card"><small>Wallet Balance</small><div class="bal">₹<span id="balance">0</span></div><p>Total Earned: ₹<span id="total">0</span></p><div class="grid"><button class="btn" onclick="location.href='wallet.html'">Withdraw</button><button class="btn" onclick="dailyBonus()">Daily +₹5</button></div></div>
+<div class="card"><h3>Refer & Earn ₹20</h3><p>Code: <b id="myCode" style="color:#6c63ff"></b></p><p id="shareLink" style="font-size:12px;word-break:break-all"></p><button class="btn" onclick="copyLink()">Copy Link</button></div>
+<div class="card"><h3>Tasks</h3><button class="btn" onclick="addMoney(10)">Watch Ad +₹10</button><button class="btn" onclick="addMoney(15)">Survey +₹15</button></div>
 <script>
-let balance = parseInt(localStorage.getItem('bal')||'0');
-document.getElementById('bal').innerText = balance;
-function earn(amt){
-  balance+=amt;
-  localStorage.setItem('bal', balance);
-  document.getElementById('bal').innerText = balance;
-  alert("₹"+amt+" added! Wallet me check karo");
-}
-function copyRef(){
-  navigator.clipboard.writeText(document.getElementById('reflink').innerText);
-  alert("Referral Link Copied!");
-}
-</script>
-</body></html>
+const firebaseConfig = {
+  apiKey: "AIzaSyDtzvRnHCR3P8DLhf-_xo_j-IhU9iaj7ro",
+  authDomain: "earngo-pro-585df.firebaseapp.com",
+  projectId: "earngo-pro-585df",
+  storageBucket: "earngo-pro-585df.firebasestorage.app",
+  messagingSenderId: "142206421543",
+  appId: "1:142206421543:web:2dc72deaa16df67def1c02",
+  measurementId: "G-T1RXK7ZHC7"
+};
+firebase.initializeApp(firebaseConfig); const db=firebase.firestore();
+let uid=localStorage.getItem('uid'); let phone=localStorage.getItem('phone');
+if(!uid){location.href="index.html";}
+document.getElementById('phoneShow').innerText=phone||uid;
+document.getElementById('myCode').innerText=uid.substring(0,6).toUpperCase();
+let link="https://ashwani-web2026.github.io/EarnGo-Pro/index.html?invite="+uid.substring(0,6).toUpperCase();
+document.getElementById('shareLink').innerText=link;
+function loadData(){db.collection("users").doc(uid).onSnapshot(doc=>{if(doc.exists){let d=doc.data(); document.getElementById('balance').innerText=d.balance||0; document.getElementById('total').innerText=d.totalEarned||0;}});}
+loadData();
+function addMoney(amt){let ref=db.collection("users").doc(uid); db.runTransaction(t=>t.get(ref).then(d=>{let nb=(d.data().balance||0)+amt; let nt=(d.data().totalEarned||0)+amt; t.update(ref,{balance:nb,totalEarned:nt});})).then(()=>alert("₹"+amt+" Added!"));}
+function dailyBonus(){addMoney(5);}
+function copyLink(){navigator.clipboard.writeText(link); alert("Link Copied!");}
+function logout(){localStorage.clear(); location.href="index.html";}
+</script></body></html>
